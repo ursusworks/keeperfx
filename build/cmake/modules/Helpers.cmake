@@ -23,7 +23,19 @@ endfunction()
 # Warning + optimisation flags, per platform (mirrors the hand Makefiles).
 function(apply_keeperfx_warnings TARGET)
     apply_keeperfx_determinism_flags(${TARGET})
-    if(MSVC)
+    if(KFX_UWP)
+        # KFX_UWP selects PlatformUWP and the UWP-safe code paths in the engine.
+        # WINAPI_FAMILY_APP hides desktop-only Win32 APIs, so using one is a
+        # compile error rather than an app that fails Store/Xbox validation.
+        target_compile_definitions(${TARGET} PRIVATE
+            KFX_UWP=1 WINAPI_FAMILY=WINAPI_FAMILY_APP
+            _CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES
+            SPNG_STATIC=1 NOMINMAX)
+        # /bigobj: some generated tables exceed the default COFF section count.
+        # /utf-8: the sources are UTF-8. /Zc:preprocessor: standard __VA_ARGS__.
+        # /EHsc: C++ exceptions (std::async, try/catch in the platform layer).
+        target_compile_options(${TARGET} PRIVATE /bigobj /utf-8 /Zc:preprocessor /EHsc)
+    elseif(MSVC)
         # Real cl.exe (Debug-MSVC preset) - a local-convenience build, not the
         # fork's canonical toolchain (that's GCC/MinGW-w64). The GNU-style
         # flags below aren't understood by cl.exe's native driver - e.g. a
@@ -102,7 +114,11 @@ endfunction()
 
 # Windows system libraries (matches the Makefile LINKLIB trailer). No-op elsewhere.
 function(apply_windows_system_libs TARGET)
-    if(WIN32)
+    if(KFX_UWP)
+        # WindowsApp.lib is the UWP umbrella import library (kernel32, Winsock,
+        # bcrypt, ... restricted to what an AppContainer may call).
+        target_link_libraries(${TARGET} PRIVATE WindowsApp)
+    elseif(WIN32)
         target_link_libraries(${TARGET} PRIVATE
             winmm imagehlp ws2_32 dbghelp bcrypt ole32 uuid dxgi)
         if(NOT MSVC)

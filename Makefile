@@ -85,7 +85,7 @@ C_SRCS := $(wildcard \
 	src/kfx/*/*.c \
 	src/kfx/*/*/*.c \
 	src/kfx/*/*/*/*.c)
-CXX_SRCS := $(filter-out src/kfx/platform/PlatformLinux.cpp src/main.cpp,$(wildcard \
+CXX_SRCS := $(filter-out src/kfx/platform/PlatformLinux.cpp src/kfx/platform/PlatformUWP.cpp src/main.cpp,$(wildcard \
 	src/*.cpp \
 	src/kfx/*.cpp \
 	src/kfx/*/*.cpp \

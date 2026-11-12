@@ -16,6 +16,14 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
+#if defined(KFX_UWP)
+// miniupnpc and libnatpmp need desktop networking APIs (GetAdaptersInfo, raw
+// gateway discovery) that UWP apps cannot use. Online play still works where
+// the host can accept connections without automatic port mapping.
+#include "net_portforward.h"
+#include "post_inc.h"
+void port_forward_set_mapping(uint16_t port) { (void)port; }
+#else
 #ifdef _WIN32
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -309,3 +317,4 @@ void port_forward_set_mapping(uint16_t port)
 #endif
     });
 }
+#endif // KFX_UWP

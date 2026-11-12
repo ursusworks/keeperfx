@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from build/uwp/Package.appxmanifest.in by CMake. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  IgnorableNamespaces="uap mp">
+
+  <!-- Publisher must match the subject of the certificate the package is signed
+       with. In Visual Studio: open this manifest > Packaging > Choose Certificate
+       > Create test certificate, and it updates this line for you. -->
+  <Identity
+    Name="KeeperFX.DungeonKeeper"
+    Publisher="@KFX_UWP_PUBLISHER@"
+    Version="@VER_MAJOR@.@VER_MINOR@.@VER_RELEASE@.0" />
+
+  <mp:PhoneIdentity PhoneProductId="6f1c6e4a-2b8e-4c35-9d0a-4b7e1f6a5c21" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>KeeperFX</DisplayName>
+    <PublisherDisplayName>KeeperFX Team</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="keeperfx.App">
+      <uap:VisualElements
+        DisplayName="KeeperFX"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Dungeon Keeper Fan eXpansion (needs the original Dungeon Keeper files)"
+        BackgroundColor="#180C0C">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#180C0C" />
+      </uap:VisualElements>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Online and LAN multiplayer (enet), matchmaking and the scripting API socket. -->
+    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
+    <Capability Name="privateNetworkClientServer" />
+  </Capabilities>
+</Package>

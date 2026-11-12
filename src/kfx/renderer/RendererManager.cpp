@@ -38,7 +38,14 @@ static IRenderer* create_renderer(RendererType type)
 
 RendererType RendererResolveType(RendererType requested)
 {
+#if defined(KFX_UWP)
+    // UWP has no desktop OpenGL; the software renderer presents through SDL's
+    // Direct3D 11 renderer instead.
+    (void)requested;
+    return RENDERER_SOFTWARE;
+#else
     return (requested == RENDERER_AUTO) ? RENDERER_SOFTWARE : requested;
+#endif
 }
 
 unsigned int RendererGetRequiredWindowFlags(RendererType type)

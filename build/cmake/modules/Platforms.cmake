@@ -1,6 +1,21 @@
 # Platforms.cmake - platform detection + directory-scope compile definitions.
 
-if(WIN32)
+# UWP (Xbox Developer Mode / Windows Store app): configure with
+# -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -A x64,
+# see docs/xbox-uwp.md. WIN32 is also true here, so test KFX_UWP first.
+if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
+    set(KFX_UWP TRUE)
+    if(NOT MSVC)
+        message(FATAL_ERROR "The UWP build needs the MSVC toolset (Visual Studio 2022 with the UWP workload)")
+    endif()
+    if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
+        message(FATAL_ERROR "The UWP build is x64 only (Xbox One / Series are x64); configure with -A x64")
+    endif()
+    kfx_status("PLATFORM" "Universal Windows Platform (x64, MSVC)")
+    # Engine-side defines and flags are applied per target, so they don't leak
+    # into SDL and the other FetchContent dependencies: see
+    # apply_keeperfx_warnings() in Helpers.cmake.
+elseif(WIN32)
     kfx_status("PLATFORM" "Windows / MinGW-w64 (i686)")
 elseif(UNIX AND NOT APPLE)
     kfx_status("PLATFORM" "Linux (x86_64)")
@@ -16,7 +31,7 @@ option(KFX_SPLIT_DEBUG
     "Linux: move debug info out of the binaries into <binary>.debug files (always on for MinGW)" OFF)
 
 # Static-linkage defines for the prebuilt Windows dependencies.
-if(WIN32)
+if(WIN32 AND NOT KFX_UWP)
     add_compile_definitions(_CRT_NONSTDC_NO_WARNINGS _CRT_SECURE_NO_WARNINGS)
     # AL_LIBTYPE_STATIC tells <AL/al.h> not to mark its functions dllimport.
     # Needed when linking the kfx-deps static prebuilt (mirrors the Makefile);

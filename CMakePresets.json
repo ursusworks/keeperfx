@@ -129,6 +129,24 @@
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo",
                 "KFX_DECK_BUNDLE": "ON"
             }
+        },
+
+        {
+            "name": "uwp-x64",
+            "displayName": "UWP x64 (Xbox Developer Mode)",
+            "description": "Visual Studio solution for a UWP app package. See docs/xbox-uwp.md.",
+            "generator": "Visual Studio 17 2022",
+            "architecture": { "value": "x64", "strategy": "set" },
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "WindowsStore",
+                "CMAKE_SYSTEM_VERSION": "10.0",
+                "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_TARGET_TRIPLET": "x64-uwp-static-md",
+                "VCPKG_MANIFEST_DIR": "${sourceDir}/build/uwp",
+                "VCPKG_INSTALLED_DIR": "${sourceDir}/out/vcpkg_installed-uwp",
+                "KFX_LUAJIT_DIR": "${sourceDir}/out/luajit-uwp"
+            }
         }
     ],
     "buildPresets": [
@@ -225,6 +243,14 @@
             "displayName": "Release MinGW32 HeavyLog",
             "inherits": "HeavyLog",
             "configurePreset": "x86-MinGW32-Release"
+        },
+
+        {
+            "name": "uwp-x64-release",
+            "displayName": "UWP x64 Release",
+            "configurePreset": "uwp-x64",
+            "configuration": "RelWithDebInfo",
+            "targets": [ "keeperfx" ]
         }
     ]
 }

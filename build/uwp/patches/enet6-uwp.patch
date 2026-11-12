@@ -1,0 +1,41 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 861784b..f243ab6 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -91,7 +91,10 @@ if(WIN32 AND BUILD_SHARED_LIBS AND (MSVC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+     )
+ endif()
+ 
+-if(WIN32)
++if(WINDOWS_STORE)
++    # UWP: timeGetTime comes from WindowsApp.lib; winmm.dll is not available to apps.
++    target_link_libraries(enet6 PRIVATE ws2_32)
++elseif(WIN32)
+     target_link_libraries(enet6 PRIVATE winmm ws2_32)
+ endif()
+ 
+diff --git a/src/win32.c b/src/win32.c
+index b6dc555..f45d784 100644
+--- a/src/win32.c
++++ b/src/win32.c
+@@ -147,7 +147,9 @@ enet_initialize (void)
+        return -1;
+     }
+ 
+-    timeBeginPeriod (1);
++#if !defined(WINAPI_FAMILY) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
++    timeBeginPeriod (1); /* desktop-only; UWP keeps the default timer resolution */
++#endif
+ 
+     return 0;
+ }
+@@ -155,7 +157,9 @@ enet_initialize (void)
+ void
+ enet_deinitialize (void)
+ {
++#if !defined(WINAPI_FAMILY) || WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
+     timeEndPeriod (1);
++#endif
+ 
+     WSACleanup ();
+ }

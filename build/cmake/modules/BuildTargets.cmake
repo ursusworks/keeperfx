@@ -7,12 +7,18 @@ file(GLOB_RECURSE KEEPERFX_SOURCES_CXX CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/sr
 list(FILTER KEEPERFX_SOURCES_C   EXCLUDE REGEX "/src/ftests/")
 list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/src/ftests/")
 
-# Desktop platform filtering (matches the hand Makefiles).
-if(WIN32)
+# Platform filtering (matches the hand Makefiles).
+if(KFX_UWP)
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformLinux\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformWindows\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/WindowCompositorWin\\.cpp$")
+elseif(WIN32)
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformLinux\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformUWP\\.cpp$")
 elseif(UNIX AND NOT APPLE)
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformWindows\\.cpp$")
     list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/WindowCompositorWin\\.cpp$")
+    list(FILTER KEEPERFX_SOURCES_CXX EXCLUDE REGEX "/PlatformUWP\\.cpp$")
 endif()
 
 # Window icon
@@ -29,14 +35,30 @@ if(NOT WIN32)
     list(APPEND KEEPERFX_SOURCES_C "${KFX_ICON_C}")
 endif()
 
-add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
-target_compile_definitions(keeperfx       PUBLIC BFDEBUG_LEVEL=0)
-target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
+if(KFX_UWP)
+    # One app package. The verbose-logging variant is a cache switch instead of
+    # a second executable, since each UWP executable is a whole app package.
+    option(KFX_UWP_HVLOG "UWP: build with verbose logging (BFDEBUG_LEVEL=10)" OFF)
+    set(KFX_UWP_PUBLISHER "CN=KeeperFX" CACHE STRING
+        "UWP: Identity Publisher in Package.appxmanifest; must match the signing certificate's subject")
+    configure_file("${CMAKE_SOURCE_DIR}/build/uwp/Package.appxmanifest.in"
+                   "${CMAKE_BINARY_DIR}/uwp/Package.appxmanifest" @ONLY)
+    file(GLOB KFX_UWP_ASSETS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/build/uwp/Assets/*.png")
+    set_property(SOURCE ${KFX_UWP_ASSETS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${KFX_UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
+    add_executable(keeperfx WIN32 ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX}
+        "${CMAKE_BINARY_DIR}/uwp/Package.appxmanifest" ${KFX_UWP_ASSETS})
+    target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=$<IF:$<BOOL:${KFX_UWP_HVLOG}>,10,0>)
+    set(KFX_TARGETS keeperfx)
+else()
+    add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
+    add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
+    target_compile_definitions(keeperfx       PUBLIC BFDEBUG_LEVEL=0)
+    target_compile_definitions(keeperfx_hvlog PUBLIC BFDEBUG_LEVEL=10)
+    set(KFX_TARGETS keeperfx keeperfx_hvlog)
+endif()
 
-set(KFX_TARGETS keeperfx keeperfx_hvlog)
-
-if(WIN32)
+if(WIN32 AND NOT KFX_UWP)
     foreach(_t IN LISTS KFX_TARGETS)
         target_sources(${_t} PRIVATE "${CMAKE_SOURCE_DIR}/res/keeperfx_stdres.rc")
     endforeach()

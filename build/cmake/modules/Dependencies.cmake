@@ -13,6 +13,13 @@ set(KFX_DEPS_BASE "https://github.com/dkfans/kfx-deps/releases/download")
 set(D "${CMAKE_BINARY_DIR}/deps")
 set(KFX_CENTITOML_SRC "${CMAKE_SOURCE_DIR}/deps/centitoml")
 
+# UWP has its own dependency set (SDL3 with the WinRT backend, vcpkg x64-uwp
+# libraries, LuaJIT built for UWP) and its own kfx_link_dependencies().
+if(KFX_UWP)
+    include(DependenciesUWP)
+    return()
+endif()
+
 # GL renderer backend: always built.
 find_package(OpenGL REQUIRED)
 

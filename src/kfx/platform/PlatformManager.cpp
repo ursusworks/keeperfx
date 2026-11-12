@@ -10,8 +10,13 @@
 #include "kfx/platform/PlatformManager.h"
 #include "kfx/platform/WindowSystemSDL.h"
 #include "kfx/platform/IPlatform.h"
+#if defined(KFX_UWP)
+#include "kfx/platform/PlatformUWP.h"
+#elif defined(_WIN32)
 #include "kfx/platform/PlatformWindows.h"
+#else
 #include "kfx/platform/PlatformLinux.h"
+#endif
 #include "kfx/platform/FileFind.h"
 #include "kfx/platform/FileSystemLb.h"
 #include "platform.h"
@@ -32,7 +37,9 @@ IFileSystem* IPlatform::GetFileSystem()
 
 IPlatform* GetPlatform()
 {
-#if defined(_WIN32)
+#if defined(KFX_UWP)
+    static PlatformUWP s_platform;
+#elif defined(_WIN32)
     static PlatformWindows s_platform;
 #else
     static PlatformLinux s_platform;

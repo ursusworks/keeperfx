@@ -30,7 +30,9 @@
 #if !defined(_WIN32)
 #define BF_POSIX_CRASH 1
 #endif
-#if defined(_WIN32)
+// UWP apps cannot use dbghelp/psapi or write next to the exe, so a UWP build
+// keeps only the C signal handlers below (KFX_UWP).
+#if defined(_WIN32) && !defined(KFX_UWP)
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -132,7 +134,7 @@ void ctrl_handler(int sig_id)
     raise(sig_id);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(KFX_UWP)
 static void
 _backtrace(int depth , LPCONTEXT context)
 {
@@ -658,14 +660,14 @@ void LbErrorParachuteInstall(void)
 #endif
 #endif
     atexit(exit_handler);
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(KFX_UWP)
     SetUnhandledExceptionFilter(ctrl_handler_w32);
 #endif
 }
 
 void LbErrorParachuteUpdate(void)
 {
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(KFX_UWP)
     SetUnhandledExceptionFilter(ctrl_handler_w32);
 #endif
 }

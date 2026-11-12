@@ -21,7 +21,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(_WIN32)
+// Not on UWP: write-watch memory needs VirtualAlloc(MEM_WRITE_WATCH), which UWP
+// only allows from Windows 10 1903 on. The tracker reports itself unavailable
+// there, which the callers already handle.
+#if defined(_WIN32) && !defined(KFX_UWP)
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

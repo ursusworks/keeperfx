@@ -1,0 +1,15 @@
+{
+    "$comment": "Dependencies for the UWP (Xbox Developer Mode) build, triplet x64-uwp-static-md. SDL3 and friends come from FetchContent instead (vcpkg's sdl3 port does not support UWP); see build/cmake/modules/DependenciesUWP.cmake.",
+    "dependencies": [
+        "zlib",
+        "minizip",
+        "libspng",
+        "openal-soft",
+        "curl",
+        {
+            "name": "ffmpeg",
+            "default-features": false,
+            "features": [ "avcodec", "avformat", "swresample" ]
+        }
+    ]
+}
