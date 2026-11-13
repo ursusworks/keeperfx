@@ -12,6 +12,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
         message(FATAL_ERROR "The UWP build is x64 only (Xbox One / Series are x64); configure with -A x64")
     endif()
     kfx_status("PLATFORM" "Universal Windows Platform (x64, MSVC)")
+    # Visual Studio turns on SDL checks (/sdl) for app-container projects, which
+    # makes C4996 (sprintf etc.) and C4146 hard errors in KeeperFX and in the
+    # FetchContent dependencies alike. They aren't on for the desktop builds either.
+    add_compile_options(/sdl-)
     # Engine-side defines and flags are applied per target, so they don't leak
     # into SDL and the other FetchContent dependencies: see
     # apply_keeperfx_warnings() in Helpers.cmake.
