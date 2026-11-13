@@ -443,6 +443,10 @@ static void process_event(const SDL_Event *ev)
         break;
 
     // top-level event type (SDL_EVENT_WINDOW_*).
+#if defined(KFX_UWP)
+    // Returning from suspension (Xbox Home / guide): treat as regaining focus.
+    case SDL_EVENT_DID_ENTER_FOREGROUND:
+#endif
     case SDL_EVENT_WINDOW_FOCUS_GAINED:
     {
         GetSDLWindowSystem()->OnFocusGained();
@@ -471,6 +475,10 @@ static void process_event(const SDL_Event *ev)
         redetect_screen_refresh_rate_for_draw();
         break;
     }
+#if defined(KFX_UWP)
+    // About to be suspended: pause and mute as on focus loss.
+    case SDL_EVENT_WILL_ENTER_BACKGROUND:
+#endif
     case SDL_EVENT_WINDOW_FOCUS_LOST:
     {
         GetSDLWindowSystem()->OnFocusLost();

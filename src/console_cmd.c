@@ -86,9 +86,9 @@
 extern "C" {
 #endif
 
-#if defined(__MINGW32__)
+#if defined(__MINGW32__) || defined(_MSC_VER)
 
-// Copied from stack overflow because MingW doesn't provide it.
+// Copied from stack overflow because MingW and MSVC don't provide it.
 char *strsep(char ** stringp, const char * delim) {
     char * rv = *stringp;
     if (rv) {

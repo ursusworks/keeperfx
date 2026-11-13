@@ -239,6 +239,9 @@ TbFileFind* PlatformUWP::FileFindFirst(const char* filespec, TbFileEntry* entry)
 
 bool PlatformUWP::VideoInit()
 {
+    // Mark the Xbox B button / system Back as handled, so it reaches the game
+    // as a gamepad button instead of navigating away from the app.
+    SDL_SetHint(SDL_HINT_WINRT_HANDLE_BACK_BUTTON, "1");
     if (!SDL_Init(SDL_INIT_VIDEO))
         return false;
     atexit(SDL_Quit);

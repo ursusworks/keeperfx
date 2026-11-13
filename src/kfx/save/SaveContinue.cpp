@@ -33,7 +33,9 @@
 #include "post_inc.h"
 
 #include <cstring>
+#if !defined(_MSC_VER)
 #include <strings.h>
+#endif
 
 #include "kfx/save/SaveManager_Internal.h"
 #include "kfx/save/core/save_bytes.h"

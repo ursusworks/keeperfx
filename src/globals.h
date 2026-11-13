@@ -51,6 +51,7 @@
 #ifdef _MSC_VER
     #define strcasecmp _stricmp
     #define strncasecmp _strnicmp
+    #define strtok_r strtok_s // same signature
 #endif
 
 #include "version.h"

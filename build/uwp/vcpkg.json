@@ -5,7 +5,11 @@
         "minizip",
         "libspng",
         "openal-soft",
-        "curl",
+        {
+            "$comment": "websockets: matchmaking uses wss://, and vcpkg builds curl without it by default.",
+            "name": "curl",
+            "features": [ "websockets" ]
+        },
         {
             "name": "ffmpeg",
             "default-features": false,

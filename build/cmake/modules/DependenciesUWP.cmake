@@ -78,7 +78,13 @@ FetchContent_Declare(SDL3_image
 
 # SDL first: SDL_mixer and SDL_image use the in-tree SDL3::SDL3-shared target
 # when it exists instead of searching for an installed SDL3.
+# SDL's WinRT sources are C++/CX (/ZW), which MSVC refuses to combine with
+# /std:c++20 (D8016). KeeperFX sets CMAKE_CXX_STANDARD 20 for itself, and
+# FetchContent projects inherit it, so build SDL as C++17.
+set(_kfx_cxx_standard "${CMAKE_CXX_STANDARD}")
+set(CMAKE_CXX_STANDARD 17)
 FetchContent_MakeAvailable(SDL3)
+set(CMAKE_CXX_STANDARD "${_kfx_cxx_standard}")
 FetchContent_MakeAvailable(SDL3_mixer SDL3_image)
 
 add_library(kfx_sdl3 INTERFACE)

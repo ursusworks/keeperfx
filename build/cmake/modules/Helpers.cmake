@@ -34,7 +34,10 @@ function(apply_keeperfx_warnings TARGET)
         # /bigobj: some generated tables exceed the default COFF section count.
         # /utf-8: the sources are UTF-8. /Zc:preprocessor: standard __VA_ARGS__.
         # /EHsc: C++ exceptions (std::async, try/catch in the platform layer).
-        target_compile_options(${TARGET} PRIVATE /bigobj /utf-8 /Zc:preprocessor /EHsc)
+        # /we4013: an undeclared function is an error, as -Werror=implicit is for
+        # GCC (MSVC would otherwise assume it returns int and truncate pointers).
+        target_compile_options(${TARGET} PRIVATE /bigobj /utf-8 /Zc:preprocessor /EHsc
+            $<$<COMPILE_LANGUAGE:C>:/we4013>)
     elseif(MSVC)
         # Real cl.exe (Debug-MSVC preset) - a local-convenience build, not the
         # fork's canonical toolchain (that's GCC/MinGW-w64). The GNU-style

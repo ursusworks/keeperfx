@@ -121,6 +121,9 @@ static size_t write_to_buffer(char *data, size_t element_size, size_t element_co
     return incoming_size;
 }
 
+static char ca_bundle_path[1024];
+static void apply_tls_options(CURL *handle);
+
 static void resolve_public_address(int32_t address_family, char *output)
 {
     output[0] = '\0';
@@ -128,6 +131,7 @@ static void resolve_public_address(int32_t address_family, char *output)
     if (!handle) return;
     LbNetLog("Matchmaking: resolving address via \"%s\"\n", matchmaking_ip_url);
     curl_easy_setopt(handle, CURLOPT_URL, matchmaking_ip_url);
+    apply_tls_options(handle);
     curl_easy_setopt(handle, CURLOPT_IPRESOLVE, (long)address_family);
     curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
     curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, (long)CONNECT_TIMEOUT_MS);
@@ -354,6 +358,19 @@ static void matchmaking_init(void)
     }
     mutex = SDL_CreateMutex();
     curl_global_init(CURL_GLOBAL_DEFAULT);
+#if defined(KFX_UWP)
+    // curl uses OpenSSL on UWP, which can't read the Windows certificate store;
+    // verify against the CA bundle shipped in the app package instead.
+    const char *install_dir = SDL_GetWinRTFSPath(SDL_WINRT_PATH_INSTALLED_LOCATION);
+    if (install_dir != NULL)
+        snprintf(ca_bundle_path, sizeof(ca_bundle_path), "%s\\cacert.pem", install_dir);
+#endif
+}
+
+static void apply_tls_options(CURL *handle)
+{
+    if (ca_bundle_path[0] != '\0')
+        curl_easy_setopt(handle, CURLOPT_CAINFO, ca_bundle_path);
 }
 
 static void load_published_public_ips(const char *udp_ipv4, int udp_ipv4_port, int udp_ipv6_port, PunchAddresses *published_addresses)
@@ -384,6 +401,7 @@ static int matchmaking_connect_thread(void *request)
         }
         LbNetLog("Matchmaking: connecting to \"%s\"\n", matchmaking_ws_url);
         curl_easy_setopt(curl_handle, CURLOPT_URL, matchmaking_ws_url);
+        apply_tls_options(curl_handle);
         curl_easy_setopt(curl_handle, CURLOPT_CONNECT_ONLY, 2L);
         curl_easy_setopt(curl_handle, CURLOPT_CONNECTTIMEOUT_MS, (int32_t)CONNECT_TIMEOUT_MS);
         curl_easy_setopt(curl_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);

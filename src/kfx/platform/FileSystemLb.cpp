@@ -12,6 +12,9 @@
 #include <string>
 
 #include <sys/stat.h>
+#if defined(_MSC_VER) && !defined(S_ISDIR)
+#define S_ISDIR(m) (((m) & _S_IFMT) == _S_IFDIR)
+#endif
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN

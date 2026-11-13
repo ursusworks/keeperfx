@@ -23,6 +23,9 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#if defined(_MSC_VER)
+#include <intrin.h> // _addcarry_u32, _subborrow_u32
+#endif
 #include "post_inc.h"
 
 #ifdef __GNUC__
@@ -402,6 +405,10 @@ static uint32_t adc32(uint32_t lhs, uint32_t rhs, bool *carry)
     const bool c = __builtin_add_overflow(lhs, rhs, &r);
     *carry =   c | __builtin_add_overflow(r, *carry, &r);
     return r;
+#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+    unsigned int r;
+    *carry = _addcarry_u32((unsigned char)*carry, lhs, rhs, &r) != 0;
+    return r;
 #else
  #warning "missing optimized adc32 implementation for this compiler"
     const uint32_t r1 = lhs + rhs;
@@ -419,6 +426,10 @@ static uint32_t sbc32(uint32_t lhs, uint32_t rhs, bool *carry)
     uint32_t r;
     const bool c = __builtin_sub_overflow(lhs, rhs, &r);
     *carry =   c | __builtin_sub_overflow(r, *carry, &r);
+    return r;
+#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
+    unsigned int r;
+    *carry = _subborrow_u32((unsigned char)*carry, lhs, rhs, &r) != 0;
     return r;
 #else
  #warning "missing optimized sbc32 implementation for this compiler"
