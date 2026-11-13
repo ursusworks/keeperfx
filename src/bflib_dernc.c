@@ -26,7 +26,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#ifdef _WIN32
+#if defined(_MSC_VER)
+#include <winsock2.h> // ntohl/ntohs; <winsock.h> is desktop-only for UWP
+#elif defined(_WIN32)
 #include <winsock.h>
 #else
 #include <arpa/inet.h>

@@ -32,6 +32,7 @@
 #include <time.h>
 #if defined(_MSC_VER)
 #include <io.h> // access
+#include <direct.h> // mkdir, getcwd
 #ifndef F_OK
 #define F_OK 0
 #endif
