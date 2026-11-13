@@ -130,7 +130,7 @@ void SendNewUserUpdates(NetUserId new_user)
     }
 }
 
-TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *)
+TbError LbNetwork_Init(uint32_t srvcindex, uint32_t maxplayrs, struct TbNetworkUserInfo *locplayr, struct ServiceInitData *init_data)
 {
     local_user_info = locplayr;
     memset(&netstate, 0, sizeof(netstate));

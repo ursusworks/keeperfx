@@ -609,7 +609,7 @@ TbError LbNetwork_Stop(void)
     return Lb_OK;
 }
 
-TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc callback, void *buf)
+TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *nsentry, TbNetworkCallbackFunc callback, void *buf)
 {
     struct TbNetworkCallbackData data;
     for (NetUserId id = 0; id < netstate.max_users; id += 1) {

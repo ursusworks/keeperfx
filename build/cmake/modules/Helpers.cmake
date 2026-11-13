@@ -37,7 +37,9 @@ function(apply_keeperfx_warnings TARGET)
         # /we4013: an undeclared function is an error, as -Werror=implicit is for
         # GCC (MSVC would otherwise assume it returns int and truncate pointers).
         target_compile_options(${TARGET} PRIVATE /bigobj /utf-8 /Zc:preprocessor /EHsc
-            $<$<COMPILE_LANGUAGE:C>:/we4013>)
+            $<$<COMPILE_LANGUAGE:C>:/we4013>
+            # <stdatomic.h> (replay.c) is still experimental in MSVC C.
+            $<$<COMPILE_LANGUAGE:C>:/experimental:c11atomics>)
     elseif(MSVC)
         # Real cl.exe (Debug-MSVC preset) - a local-convenience build, not the
         # fork's canonical toolchain (that's GCC/MinGW-w64). The GNU-style

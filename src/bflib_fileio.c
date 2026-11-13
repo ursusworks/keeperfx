@@ -30,6 +30,12 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <time.h>
+#if defined(_MSC_VER)
+#include <io.h> // access
+#ifndef F_OK
+#define F_OK 0
+#endif
+#endif
 #if !defined(_WIN32)
 #include <dirent.h>
 #include <strings.h>

@@ -42,7 +42,8 @@
 static int thing_set_field(lua_State *L);
 static int thing_get_field(lua_State *L);
 
-static const struct luaL_Reg thing_methods[];
+// Defined further down; MSVC rejects a forward declaration of a static array of unknown size.
+static const struct luaL_Reg *get_thing_methods(void);
 
 
 /**********************************************/
@@ -572,7 +573,7 @@ static int thing_set_field(lua_State *L) {
 static int thing_get_field(lua_State *L) {
     const char* key = luaL_checkstring(L, 2);
 
-    if (try_get_c_method(L, key, thing_methods))
+    if (try_get_c_method(L, key, get_thing_methods()))
     {
         return 1;
     }
@@ -861,6 +862,11 @@ static const struct luaL_Reg thing_methods[] = {
     {"in_enemy_custody"             ,lua_is_in_enemy_custody            }, 
     {NULL, NULL}
 };
+
+static const struct luaL_Reg *get_thing_methods(void)
+{
+    return thing_methods;
+}
 
 static const struct luaL_Reg thing_meta[] = {
     {"__tostring", thing_tostring},
