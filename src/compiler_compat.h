@@ -23,8 +23,10 @@
     #endif
     // __builtin_offsetof is a GCC extension; map it to standard offsetof().
     // offsetof() is a compile-time constant on MSVC (unlike address arithmetic).
+    // Not in C++: there MSVC's own offsetof expands to its __builtin_offsetof
+    // intrinsic, and mapping that back to offsetof leaves "offsetof" undefined.
     #include <stddef.h>
-    #ifndef __builtin_offsetof
+    #if !defined(__cplusplus) && !defined(__builtin_offsetof)
         #define __builtin_offsetof(type, member) offsetof(type, member)
     #endif
 #elif defined(__GNUC__)
