@@ -62,6 +62,11 @@ if(KFX_UWP)
         "${CMAKE_BINARY_DIR}/uwp/Package.appxmanifest" ${KFX_UWP_ASSETS} "${KFX_UWP_CACERT}")
     target_compile_definitions(keeperfx PUBLIC BFDEBUG_LEVEL=$<IF:$<BOOL:${KFX_UWP_HVLOG}>,10,0>)
     set(KFX_TARGETS keeperfx)
+    # C-only MSVC flags, per source (the VS generator can't split target options
+    # by language): /we4013 makes an undeclared function an error, as
+    # -Werror=implicit does for GCC (MSVC would assume it returns int and
+    # truncate pointers); <stdatomic.h> (replay.c) is still experimental in C.
+    set_property(SOURCE ${KEEPERFX_SOURCES_C} APPEND PROPERTY COMPILE_OPTIONS /we4013 /experimental:c11atomics)
 else()
     add_executable(keeperfx       ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
     add_executable(keeperfx_hvlog ${KEEPERFX_SOURCES_C} ${KEEPERFX_SOURCES_CXX})
