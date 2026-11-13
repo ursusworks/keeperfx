@@ -273,10 +273,6 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
     mdinfo->Available = false;
     mdinfo->window_pos_x = SDL_WINDOWPOS_CENTERED_DISPLAY(display_sdlid);
     mdinfo->window_pos_y = SDL_WINDOWPOS_CENTERED_DISPLAY(display_sdlid);
-    if (PlatformManager_ForcesAllModesAvailable()) {
-        mdinfo->Available = true;
-        return true;
-    }
     // if this is window mode
     if (mdinfo->VideoFlags & Lb_VF_WINDOWED)
     {
@@ -343,6 +339,12 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
         mdinfo->Height = desktop_h;
     }
     // else if this is a specific fullscreen mode
+    // Platforms that own the display accept any fixed-size mode without probing.
+    // (DESKTOP and ALL still go through the branches above: they have no size
+    // of their own until it's taken from the display, and a 0x0 mode crashes.)
+    else if (PlatformManager_ForcesAllModesAvailable())
+    {
+    }
     else
     {
         // See if the desired fullscreen mode is a valid mode for the current display
