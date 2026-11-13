@@ -5,17 +5,20 @@ Xbox Series consoles in **Developer Mode**, and on Windows 10/11 as a sideloaded
 Store-style app. It is not a retail Xbox release: the game needs the original
 Dungeon Keeper files, so it can't go through the Microsoft Store.
 
-> Status: **untested prototype.** The UWP code paths have been checked against
-> the UWP API family (no desktop-only Win32 calls), but the project has not been
-> built with Visual Studio or run on a console yet. Expect the first build to
-> need small fixes; see "Known gaps" at the end.
+> Status: **prototype.** The package builds with MSVC (VS 2022 Build Tools
+> 17.14, Windows SDK 10.0.26100) and starts on Windows 11 in Developer Mode, up to
+> the "game files not found" prompt. It has not yet been played with game data
+> or run on a console; see "Known gaps" at the end.
 
 ## What you need
 
 - A Windows 10/11 PC with **Visual Studio 2022** and these workloads:
   *Desktop development with C++* and *Universal Windows Platform development*
   (include the *C++ (v143) Universal Windows Platform tools* component).
-- **CMake 3.25+** and **git** on `PATH`.
+- **CMake 4.x** and **git** on `PATH`. (CMake 3.x only recognises the
+  *Windows 10 SDK* Visual Studio component; with only the Windows 11 SDK it
+  stops with "A Windows Store component with CMake requires both the Windows
+  Desktop SDK as well as the Windows Store '10.0' SDK".)
 - **vcpkg** cloned somewhere, with `VCPKG_ROOT` set to that folder.
 - An Xbox in Developer Mode (the *Xbox Dev Mode* app from the Store, plus a
   Microsoft Partner Center developer account).
@@ -41,7 +44,7 @@ cmake --preset uwp-x64
 cmake --build --preset uwp-x64-release
 ```
 
-The first configure takes a while: vcpkg builds zlib, minizip, libspng,
+The first configure takes a while (about 35 minutes, most of it FFmpeg): vcpkg builds zlib, minizip, libspng,
 openal-soft, curl and FFmpeg for the `x64-uwp-static-md` triplet, and CMake
 fetches SDL3 (the [SternXD/SDL3-uwp](https://github.com/SternXD/SDL3-uwp) fork,
 because upstream SDL3 no longer has a UWP backend), SDL3_mixer, SDL3_image,
@@ -58,6 +61,19 @@ go to **Packaging > Choose Certificate > Create test certificate**. If the
 certificate's subject isn't `CN=KeeperFX`, reconfigure with
 `-DKFX_UWP_PUBLISHER="CN=<your subject>"` so the generated manifest keeps
 matching it.
+
+### Trying it on a Windows PC
+
+With Developer Mode on, the build output can be registered as a loose package,
+without signing:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File build\uwp\register-layout.ps1
+```
+
+It copies the files listed in `keeperfx.build.appxrecipe` to
+`out\keeperfx-layout`, registers that folder and prints the app's
+LocalState path. Start KeeperFX from the Start menu.
 
 ## 3. Deploy to the Xbox
 
@@ -129,18 +145,15 @@ Desktop builds (MinGW, Linux) are unchanged: everything UWP-specific is behind
 
 ## Known gaps
 
-- **Not built with MSVC yet.** KeeperFX's main toolchains are MinGW and GCC.
-  There is an MSVC preset and a `compiler_compat.h`, but expect a few MSVC
-  compile errors on the first build (GCC-only syntax, warnings-as-errors in
-  dependencies). The UWP-specific code was syntax-checked with clang against
-  the UWP API family, not compiled with MSVC.
+- **Not played yet.** It builds and starts, but nothing past the game-files
+  check has run under UWP. Expect runtime issues in the parts the desktop build
+  never exercised under MSVC (it's the first MSVC build of the engine).
+- **MSVC vs. GCC builds in multiplayer.** The determinism flags in
+  `Helpers.cmake` are GCC-only. If the simulation uses floating-point library
+  calls anywhere, an MSVC client could drift from MinGW/Linux players.
 - **SDL3-uwp is a community fork.** It's pinned to a known commit
   (`KFX_SDL3_UWP_COMMIT` in `DependenciesUWP.cmake`). If its WinRT backend has
   bugs (input, audio, window size), that's where to look first.
-- **APPX0702 / missing .winmd:** SDL's `SDL_main.h` skips its C++/CX check when
-  compiling as C++20, which KeeperFX does. If Visual Studio still reports a
-  missing Windows metadata file, add `SDL_WINRT_METADATA_FILE_AVAILABLE` and
-  compile one small source file with `/ZW`.
 - **Display size:** UWP gives the game one full-screen window; resolution
   options in the menus may not all apply. The TV-safe area isn't handled.
 - **Performance:** the software renderer is CPU-bound. Xbox One should cope at
