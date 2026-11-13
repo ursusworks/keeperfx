@@ -48,7 +48,8 @@ if(KFX_UWP)
     set_property(SOURCE ${KFX_UWP_ASSETS} PROPERTY VS_DEPLOYMENT_LOCATION "Assets")
     # CA bundle for curl (OpenSSL on UWP can't use the Windows certificate
     # store), installed at the package root; see net_matchmaking.c.
-    set(KFX_UWP_CACERT "${CMAKE_BINARY_DIR}/uwp/cacert.pem")
+    # At the top of the binary dir, so it lands at the package root.
+    set(KFX_UWP_CACERT "${CMAKE_BINARY_DIR}/cacert.pem")
     if(NOT EXISTS "${KFX_UWP_CACERT}")
         file(DOWNLOAD "https://curl.se/ca/cacert.pem" "${KFX_UWP_CACERT}" TLS_VERIFY ON STATUS _kfx_ca_status)
         list(GET _kfx_ca_status 0 _kfx_ca_rc)
