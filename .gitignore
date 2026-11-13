@@ -1,4 +1,5 @@
 /.local
+/patch
 /bin
 /obj
 /sdl
