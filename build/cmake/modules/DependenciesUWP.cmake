@@ -58,7 +58,8 @@ foreach(_off VORBIS_VORBISFILE VORBIS_TREMOR OPUS WAVPACK GME MOD MIDI MIDI_FLUI
     set(SDLMIXER_${_off} OFF CACHE BOOL "" FORCE)
 endforeach()
 FetchContent_Declare(SDL3_mixer
-    URL "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-${SDL3_MIX_VER}.tar.gz")
+    URL "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${SDL3_MIX_VER}/SDL3_mixer-${SDL3_MIX_VER}.tar.gz"
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 
 # --- SDL3_image: PNG load via stb_image, PNG save via SDL core ----------------
 set(SDLIMAGE_VENDORED    OFF CACHE BOOL "" FORCE)
@@ -74,7 +75,8 @@ foreach(_off AVIF JPG JXL TIF WEBP GIF)
     set(SDLIMAGE_${_off} OFF CACHE BOOL "" FORCE)
 endforeach()
 FetchContent_Declare(SDL3_image
-    URL "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-${SDL3_IMG_VER}.tar.gz")
+    URL "https://github.com/libsdl-org/SDL_image/releases/download/release-${SDL3_IMG_VER}/SDL3_image-${SDL3_IMG_VER}.tar.gz"
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 
 # SDL first: SDL_mixer and SDL_image use the in-tree SDL3::SDL3-shared target
 # when it exists instead of searching for an installed SDL3.
@@ -91,6 +93,14 @@ add_library(kfx_sdl3 INTERFACE)
 target_link_libraries(kfx_sdl3 INTERFACE SDL3::SDL3 SDL3_mixer::SDL3_mixer SDL3_image::SDL3_image)
 
 # --- vcpkg libraries (x64-uwp-static-md) ---------------------------------------
+# vcpkg's FindFFMPEG resolves FFmpeg's system libraries (mfplat, mfuuid, ...)
+# with find_library. Outside a developer prompt the Windows SDK's library
+# folder isn't on CMake's search path, so add it.
+cmake_host_system_information(RESULT _kfx_kits_root QUERY WINDOWS_REGISTRY
+    "HKLM/SOFTWARE/Microsoft/Windows Kits/Installed Roots" VALUE "KitsRoot10")
+if(_kfx_kits_root AND CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
+    list(APPEND CMAKE_LIBRARY_PATH "${_kfx_kits_root}/Lib/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/um/x64")
+endif()
 find_package(ZLIB REQUIRED)
 find_package(minizip CONFIG REQUIRED)
 find_package(SPNG CONFIG REQUIRED)

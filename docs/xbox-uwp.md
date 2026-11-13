@@ -119,6 +119,9 @@ to `save\settings.toml`). A USB mouse and keyboard also work on Xbox.
 | Crash handler | C signal handlers only (no dbghelp stack walk or minidump) | `src/bflib_crash.c` |
 | Replay rewind memory tracker | Off (reports "not available"; rewind falls back to its slower path) | `src/kernel_memtracker.c` |
 | UPnP / NAT-PMP port mapping | Off (multiplayer hosts must forward ports themselves) | `src/net_portforward.cpp` |
+| TLS for matchmaking | curl uses OpenSSL with `cacert.pem` (downloaded from curl.se at configure time) shipped in the package | `src/net_matchmaking.c`, `BuildTargets.cmake` |
+| Suspend / resume | Treated like losing / regaining window focus (music paused, audio muted per settings) | `src/bflib_inputctrl.cpp` |
+| Back / B button | Marked handled, so it reaches the game instead of leaving the app | `PlatformUWP.cpp` |
 | Dependencies | SDL3 from the UWP fork, vcpkg `x64-uwp-static-md`, LuaJIT from `build-luajit.ps1`, enet6 with a small UWP patch | `build/cmake/modules/DependenciesUWP.cmake`, `build/uwp/` |
 
 Desktop builds (MinGW, Linux) are unchanged: everything UWP-specific is behind
