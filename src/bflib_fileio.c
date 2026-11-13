@@ -32,7 +32,8 @@
 #include <time.h>
 #if defined(_MSC_VER)
 #include <io.h> // access
-#include <direct.h> // mkdir, getcwd
+#include <direct.h> // mkdir, _getcwd
+#define getcwd _getcwd // the POSIX name isn't declared for UWP
 #ifndef F_OK
 #define F_OK 0
 #endif
