@@ -32,6 +32,7 @@
 #include "keeperfx.hpp"
 #include "post_inc.h"
 
+#include <cstddef> // offsetof
 #include <cstring>
 #if !defined(_MSC_VER)
 #include <strings.h>

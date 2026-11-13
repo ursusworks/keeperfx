@@ -18,13 +18,9 @@
 #include "pre_inc.h"
 // Only part of UWP builds; empty elsewhere so source globs can include it.
 #if defined(KFX_UWP)
-#include "kfx/platform/PlatformUWP.h"
-#include "kfx/platform/FileFind.h"
-#include "platform.h" // kfxmain
-#include "bflib_fileio.h"
-#include "config.h" // keeper_runtime_directory
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h> // WinRT entry point; renames main() below to SDL_main()
+// System headers first: globals.h defines a NOMSG() logging macro, which makes
+// <winuser.h> skip MSG/LPMSG, and SDL_main.h's WinRT entry point pulls in OLE
+// headers that need them.
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -32,6 +28,13 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h> // WinRT entry point; renames main() below to SDL_main()
+#include "kfx/platform/PlatformUWP.h"
+#include "kfx/platform/FileFind.h"
+#include "platform.h" // kfxmain
+#include "bflib_fileio.h"
+#include "config.h" // keeper_runtime_directory
 #include <algorithm>
 #include <cctype>
 #include <cstdio>

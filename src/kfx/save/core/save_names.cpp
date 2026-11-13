@@ -20,6 +20,7 @@
 #include <array>
 #include <iterator>
 #include <cstdlib>
+#include <cstddef> // offsetof
 #include <cstring>
 #include <string_view>
 #include <vector>

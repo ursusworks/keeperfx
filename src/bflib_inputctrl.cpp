@@ -298,6 +298,10 @@ static void process_event(const SDL_Event *ev)
     if (ev->type >= SDL_EVENT_WINDOW_FIRST && ev->type <= SDL_EVENT_WINDOW_LAST)
         GetSDLWindowSystem()->HandleWindowEvent(ev);
 
+    // Mouse-motion state. Declared outside the switch: MSVC rejects case labels
+    // that jump past these initialisations (C2360), even for statics.
+    static int frac_x = 0, frac_y = 0;
+    static bool s_recenter_pending = false;
     switch (ev->type)
     {
     case SDL_EVENT_KEY_DOWN:
@@ -327,8 +331,6 @@ static void process_event(const SDL_Event *ev)
         {
           break;
         }
-        static int frac_x = 0, frac_y = 0;
-        static bool s_recenter_pending = false;
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
             // Warp-based relative motion (Wine-safe).
