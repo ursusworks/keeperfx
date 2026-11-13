@@ -159,9 +159,12 @@
 
 short default_loc_player = 0;
 struct StartupParameters start_params;
+// Used from front_network.c. extern "C": MSVC, unlike GCC, mangles C++ variable names.
+extern "C" {
 char autostart_multiplayer_campaign[80] = "";
 int autostart_multiplayer_level = 0;
 int autostart_multiplayer_users_expected = 2;
+}
 int32_t turns_per_second;
 unsigned char *blue_palette;
 unsigned char *red_palette;
